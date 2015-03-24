@@ -6,11 +6,30 @@ Created on Nov 9, 2011
 
 from ultrafinance.lib.errors import Errors, UfException
 
+
 class DAMFactory(object):
     ''' DAM factory '''
     @staticmethod
-    def createDAM(damType, settings = None):
-        ''' create DAM '''
+    def createDAM(damType, settings=None):
+        ''' Create DAM
+        Parameters
+        ----------
+        damType: str
+            Specify the type of dam. Can be
+            'yahoo', 'google', 'excel', 'hbase', or 'sql'
+        settings:
+            extra settings specific to DAM
+
+            sql requires settings['db'] to be defined. See the 'Engine
+            Configuration' and 'Working with Engines and Connections' pages in
+            SQLAlchemy's documentation
+
+        Returns
+        -------
+        dam: dam
+            Returns specified DAM
+        '''
+
         if 'yahoo' == damType:
             from ultrafinance.dam.yahooDAM import YahooDAM
             dam = YahooDAM()
@@ -25,6 +44,8 @@ class DAMFactory(object):
             dam = HBaseDAM()
         elif 'sql' == damType:
             from ultrafinance.dam.sqlDAM import SqlDAM
+            if settings is None or 'db' not in settings.keys():
+                raise KeyError('"db" must be defined to create sql DAM')
             dam = SqlDAM()
         else:
             raise UfException(Errors.INVALID_DAM_TYPE,
